@@ -30,8 +30,7 @@ export default async function (context, req) {
     const upstreamText = await upstream.text().catch(() => '');
 
     if (upstream.ok || upstream.status === 201) {
-      // Always send a 200 + JSON so the front-end is happy
-      context.res = { status: 200, body: { ok: true } };
+      context.res = { status: 200, body: { ok: true } }; // normalize to 200 JSON
     } else {
       context.res = {
         status: 502,
