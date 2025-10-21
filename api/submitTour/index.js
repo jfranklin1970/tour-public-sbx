@@ -1,112 +1,91 @@
-// Azure Functions v4 (Node 18). Uses built-in fetch.
-// APP SETTINGS required (Function App → Configuration):
-// TENANT_ID, CLIENT_ID, CLIENT_SECRET
-// SPO_HOSTNAME = kofile0.sharepoint.com
-// SPO_SITE_PATH = /sites/KO-TourOperations
-// SPO_LIST_NAME = TourRequests
+// Azure Function (Node 18+) — HTTP trigger
+// Purpose: accept public form posts, handle CORS, validate, and echo back.
+// Later we can swap the echo with SharePoint/Flow logic.
 
-const TOKEN_URL = `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`;
-const GRAPH = "https://graph.microsoft.com/v1.0";
+const ALLOW_ORIGINS =
+  (process.env.ALLOW_ORIGINS || "*")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
 
-async function getToken() {
-  const body = new URLSearchParams({
-    client_id: process.env.CLIENT_ID,
-    client_secret: process.env.CLIENT_SECRET,
-    grant_type: "client_credentials",
-    scope: "https://graph.microsoft.com/.default",
-  });
-  const r = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
-  });
-  if (!r.ok) throw new Error(`token ${r.status}: ${await r.text()}`);
-  return (await r.json()).access_token;
-}
+// Build CORS headers for the current request origin
+function makeCorsHeaders(origin) {
+  const wildcard = ALLOW_ORIGINS.includes("*");
+  const allowed =
+    wildcard || (origin && ALLOW_ORIGINS.includes(origin));
 
-async function getSiteId(tok) {
-  const url = `${GRAPH}/sites/${process.env.SPO_HOSTNAME}:${process.env.SPO_SITE_PATH}`;
-  const r = await fetch(url, { headers: { Authorization: `Bearer ${tok}` } });
-  if (!r.ok) throw new Error(`site ${r.status}: ${await r.text()}`);
-  return (await r.json()).id;
-}
-
-async function getListId(tok, siteId, listName) {
-  const url = `${GRAPH}/sites/${siteId}/lists?$filter=displayName eq '${listName.replace(/'/g, "''")}'`;
-  const r = await fetch(url, { headers: { Authorization: `Bearer ${tok}` } });
-  if (!r.ok) throw new Error(`list ${r.status}: ${await r.text()}`);
-  const v = (await r.json()).value;
-  if (!v?.[0]) throw new Error(`list not found: ${listName}`);
-  return v[0].id;
-}
-
-function toIsoOrBlank(v) {
-  if (!v) return "";
-  // accept already-ISO, or date strings from the form
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? "" : d.toISOString();
-}
-
-async function createItem(tok, siteId, listId, fields) {
-  const url = `${GRAPH}/sites/${siteId}/lists/${listId}/items`;
-  const r = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${tok}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ fields }),
-  });
-  if (!r.ok) throw new Error(`create ${r.status}: ${await r.text()}`);
+  return {
+    "Access-Control-Allow-Origin": allowed ? (wildcard ? "*" : origin) : ALLOW_ORIGINS[0] || "*",
+    "Vary": "Origin",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, x-functions-key"
+  };
 }
 
 module.exports = async function (context, req) {
-  // CORS preflight
+  const origin = req.headers?.origin || "";
+  const cors = makeCorsHeaders(origin);
+
+  // Preflight
   if (req.method === "OPTIONS") {
+    context.res = { status: 204, headers: cors };
+    return;
+  }
+
+  // Only POST is allowed
+  if (req.method !== "POST") {
     context.res = {
-      status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-      },
+      status: 405,
+      headers: cors,
+      body: { error: "Method Not Allowed" }
     };
     return;
   }
 
-  try {
-    const b = req.body || {};
-
-    // Map your exact SharePoint columns
-    const fields = {
-      Title: `${b.company ?? b.Company ?? "Tour"} request`,
-      RequesterName: b.requesterName ?? b.RequesterName ?? "",
-      RequesterEmail: b.requesterEmail ?? b.RequesterEmail ?? "",
-      Phone: b.phone ?? b.Phone ?? "",
-      Company: b.company ?? b.Company ?? "",
-      PartySize: b.partySize ?? b.PartySize ?? null,
-      Status: "Pending Approval",
-      Reason: b.reason ?? b.Reason ?? "",
-      PreferredStart: toIsoOrBlank(b.startUtc ?? b.PreferredStart),
-      PreferredEnd: toIsoOrBlank(b.endUtc ?? b.PreferredEnd),
-      Notes: b.notes ?? b.Notes ?? "",
-    };
-
-    const tok = await getToken();
-    const siteId = await getSiteId(tok);
-    const listId = await getListId(tok, siteId, process.env.SPO_LIST_NAME);
-    await createItem(tok, siteId, listId, fields);
-
-    context.res = {
-      status: 204,
-      headers: { "Access-Control-Allow-Origin": "*" },
-    };
-  } catch (e) {
-    context.log.error(e?.stack || String(e));
-    context.res = {
-      status: 500,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: { error: "SharePoint write failed" },
-    };
+  // Parse body safely (supports JSON body or rawBody)
+  let body = req.body;
+  if (!body && req.rawBody) {
+    try { body = JSON.parse(req.rawBody); } catch { /* noop */ }
   }
+
+  // Basic field validation (adjust as needed)
+  const required = [
+    "company",
+    "requesterName",
+    "requesterEmail",
+    "preferredStart",
+    "preferredEnd"
+  ];
+
+  const missing = required.filter(f => !body || body[f] == null || body[f] === "");
+  if (missing.length) {
+    context.res = {
+      status: 400,
+      headers: cors,
+      body: { error: "Missing required fields", missing }
+    };
+    return;
+  }
+
+  // At this point, the payload is valid and you can plug in your real logic
+  // (e.g., call Microsoft Graph to create a SharePoint list item).
+  // For now we just echo success so the frontend shows “Request received”.
+  context.log("submitTour payload:", body);
+
+  context.res = {
+    status: 200,
+    headers: cors,
+    body: {
+      ok: true,
+      message: "Request received",
+      data: {
+        company: body.company,
+        requesterName: body.requesterName,
+        requesterEmail: body.requesterEmail,
+        preferredStart: body.preferredStart,
+        preferredEnd: body.preferredEnd
+      }
+    }
+  };
 };
