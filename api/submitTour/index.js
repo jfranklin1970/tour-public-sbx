@@ -1,42 +1,44 @@
-// Node 18 Azure Functions (SWA integrated)
-// Reads BOOK_API_URL from env and forwards a validated payload.
+// Node 18 SWA Function
 export default async function (context, req) {
-  const BOOK_API_URL = process.env.BOOK_API_URL; // e.g. your tourscheduler function URL w/ ?code=...
+  const BOOK_API_URL = process.env.BOOK_API_URL;
   if (!BOOK_API_URL) {
-    context.res = { status: 500, body: 'Missing configuration: BOOK_API_URL' };
+    context.res = { status: 500, body: { ok: false, error: 'Missing BOOK_API_URL' } };
     return;
   }
 
   const b = req.body || {};
-  const company = (b.company || '').trim();
-  const requesterName = (b.requesterName || '').trim();
+  const company        = (b.company || '').trim();
+  const requesterName  = (b.requesterName || '').trim();
   const requesterEmail = (b.requesterEmail || '').trim();
-  const startUtc = (b.startUtc || '').trim();
-  const endUtc = (b.endUtc || '').trim();
+  const startUtc       = (b.startUtc || '').trim();
+  const endUtc         = (b.endUtc || '').trim();
 
-  // Basic validation (keep it strict so the downstream never 400s)
   if (!company || !requesterName || !requesterEmail || !startUtc || !endUtc) {
-    context.res = { status: 400, body: 'Missing required fields.' };
+    context.res = { status: 400, body: { ok: false, error: 'Missing required fields' } };
     return;
   }
 
-  // Only forward the fields your function expects
   const outbound = { company, requesterName, requesterEmail, startUtc, endUtc };
 
   try {
-    const r = await fetch(BOOK_API_URL, {
+    const upstream = await fetch(BOOK_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(outbound),
     });
 
-    if (r.ok || r.status === 201) {
-      context.res = { status: 201, body: 'Created' };
+    const upstreamText = await upstream.text().catch(() => '');
+
+    if (upstream.ok || upstream.status === 201) {
+      // Always send a 200 + JSON so the front-end is happy
+      context.res = { status: 200, body: { ok: true } };
     } else {
-      const text = await r.text();
-      context.res = { status: 502, body: `Upstream error: ${r.status} ${text}` };
+      context.res = {
+        status: 502,
+        body: { ok: false, upstreamStatus: upstream.status, upstreamBody: upstreamText }
+      };
     }
   } catch (e) {
-    context.res = { status: 502, body: `Call failed: ${e.message}` };
+    context.res = { status: 502, body: { ok: false, error: String(e) } };
   }
 }
