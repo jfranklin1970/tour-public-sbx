@@ -1,91 +1,77 @@
-// Azure Function (Node 18+) — HTTP trigger
-// Purpose: accept public form posts, handle CORS, validate, and echo back.
-// Later we can swap the echo with SharePoint/Flow logic.
-
-const ALLOW_ORIGINS =
-  (process.env.ALLOW_ORIGINS || "*")
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean);
-
-// Build CORS headers for the current request origin
-function makeCorsHeaders(origin) {
-  const wildcard = ALLOW_ORIGINS.includes("*");
-  const allowed =
-    wildcard || (origin && ALLOW_ORIGINS.includes(origin));
-
-  return {
-    "Access-Control-Allow-Origin": allowed ? (wildcard ? "*" : origin) : ALLOW_ORIGINS[0] || "*",
-    "Vary": "Origin",
-    "Access-Control-Allow-Credentials": "true",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, x-functions-key"
-  };
-}
+// Azure Function: POST /api/submitTour
+// Works in Functions v3/v4; handles OPTIONS preflight; validates required fields
 
 module.exports = async function (context, req) {
-  const origin = req.headers?.origin || "";
-  const cors = makeCorsHeaders(origin);
-
-  // Preflight
-  if (req.method === "OPTIONS") {
-    context.res = { status: 204, headers: cors };
-    return;
-  }
-
-  // Only POST is allowed
-  if (req.method !== "POST") {
-    context.res = {
-      status: 405,
-      headers: cors,
-      body: { error: "Method Not Allowed" }
+  // 1) CORS preflight support (OPTIONS)
+  if (req.method === 'OPTIONS') {
+    context.log('CORS preflight hit');
+    return {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',              // tighten in prod
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Max-Age': '86400',
+      },
     };
-    return;
   }
 
-  // Parse body safely (supports JSON body or rawBody)
-  let body = req.body;
-  if (!body && req.rawBody) {
-    try { body = JSON.parse(req.rawBody); } catch { /* noop */ }
+  // 2) Try to parse JSON body (supports both v3 and v4 styles)
+  let body = null;
+  try {
+    // v4 style has req.body as object already; v3 sometimes needs req.rawBody
+    if (req.body && typeof req.body === 'object') {
+      body = req.body;
+    } else if (req.rawBody) {
+      body = JSON.parse(req.rawBody);
+    } else if (typeof req.text === 'function') {
+      // in case of streams
+      const text = await req.text();
+      body = text ? JSON.parse(text) : null;
+    } else if (typeof req.json === 'function') {
+      // v4 style helper
+      body = await req.json();
+    }
+  } catch (e) {
+    context.log.warn('Body parse failed:', e.message);
   }
 
-  // Basic field validation (adjust as needed)
-  const required = [
-    "company",
-    "requesterName",
-    "requesterEmail",
-    "preferredStart",
-    "preferredEnd"
-  ];
+  const contentType = (req.headers && (req.headers['content-type'] || req.headers['Content-Type'])) || '';
+  context.log('submitTour: method=%s content-type=%s', req.method, contentType);
+  context.log('submitTour: body=', body);
 
-  const missing = required.filter(f => !body || body[f] == null || body[f] === "");
+  // 3) Validate required fields
+  const required = ['company', 'requesterName', 'requesterEmail', 'startUtc', 'endUtc'];
+  const missing = required.filter((k) => !body || body[k] == null || body[k] === '');
+
   if (missing.length) {
-    context.res = {
+    return {
       status: 400,
-      headers: cors,
-      body: { error: "Missing required fields", missing }
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+      body: {
+        error: 'Missing required fields',
+        missing,
+        hint: 'Send JSON with company, requesterName, requesterEmail, startUtc, endUtc',
+      },
     };
-    return;
   }
 
-  // At this point, the payload is valid and you can plug in your real logic
-  // (e.g., call Microsoft Graph to create a SharePoint list item).
-  // For now we just echo success so the frontend shows “Request received”.
-  context.log("submitTour payload:", body);
-
-  context.res = {
+  // 4) TODO: here is where you’ll call SharePoint / Graph to add list item, etc.
+  // For now we echo back to confirm the end-to-end flow is correct.
+  // (You already validated the website->function path; next step is writing to SharePoint.)
+  return {
     status: 200,
-    headers: cors,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    },
     body: {
       ok: true,
-      message: "Request received",
-      data: {
-        company: body.company,
-        requesterName: body.requesterName,
-        requesterEmail: body.requesterEmail,
-        preferredStart: body.preferredStart,
-        preferredEnd: body.preferredEnd
-      }
-    }
+      received: body,
+      // You can also return an ID from SharePoint once we wire that up.
+    },
   };
 };
