@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kofile — Facility Tour Request</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">Kofile</div>
+    <div class="tag">Facility Tours</div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Request a Facility Tour</h1>
+      <p>Vibes: modern, efficient, secure. Fill the form, we’ll handle the rest.</p>
+    </section>
+
+    <form id="tourForm" class="card">
+      <div class="row">
+        <label>Requester Name<span class="req">*</span></label>
+        <input id="requesterName" required placeholder="Jane Smith" />
+      </div>
+
+      <div class="row">
+        <label>Requester Email<span class="req">*</span></label>
+        <input id="requesterEmail" type="email" required placeholder="jane.smith@example.com" />
+      </div>
+
+      <div class="row">
+        <label>Company<span class="req">*</span></label>
+        <input id="company" required placeholder="Your Org" />
+      </div>
+
+      <div class="row grid2">
+        <div>
+          <label>Preferred Start (local)<span class="req">*</span></label>
+          <input id="startLocal" type="datetime-local" required />
+        </div>
+        <div>
+          <label>Preferred End (local)<span class="req">*</span></label>
+          <input id="endLocal" type="datetime-local" required />
+        </div>
+      </div>
+
+      <div class="row grid2">
+        <div>
+          <label>Party Size</label>
+          <input id="partySize" type="number" min="1" placeholder="e.g. 5" />
+        </div>
+        <div>
+          <label>Reason</label>
+          <input id="reason" placeholder="School group, vendor tour, etc." />
+        </div>
+      </div>
+
+      <button class="btn" type="submit">Submit request</button>
+
+      <div id="status" class="status" aria-live="polite"></div>
+    </form>
+  </main>
+
+  <footer class="foot">© Kofile</footer>
+  <script src="/assets/script.js"></script>
+</body>
+</html>
