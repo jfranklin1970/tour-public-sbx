@@ -37,3 +37,4 @@ jobs:
         with:
           action: "close"
           azure_static_web_apps_api_token: ${{ secrets.SWA_TOKEN }}
+
