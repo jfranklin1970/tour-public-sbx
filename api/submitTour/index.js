@@ -1,77 +1,82 @@
-// Azure Function: POST /api/submitTour
-// Works in Functions v3/v4; handles OPTIONS preflight; validates required fields
+import fetch from "node-fetch";
 
-module.exports = async function (context, req) {
-  // 1) CORS preflight support (OPTIONS)
-  if (req.method === 'OPTIONS') {
-    context.log('CORS preflight hit');
-    return {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',              // tighten in prod
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Max-Age': '86400',
-      },
-    };
-  }
+export default async function (context, req) {
+  const { company, requesterName, requesterEmail, startUtc, endUtc, partySize, reason } = req.body || {};
 
-  // 2) Try to parse JSON body (supports both v3 and v4 styles)
-  let body = null;
-  try {
-    // v4 style has req.body as object already; v3 sometimes needs req.rawBody
-    if (req.body && typeof req.body === 'object') {
-      body = req.body;
-    } else if (req.rawBody) {
-      body = JSON.parse(req.rawBody);
-    } else if (typeof req.text === 'function') {
-      // in case of streams
-      const text = await req.text();
-      body = text ? JSON.parse(text) : null;
-    } else if (typeof req.json === 'function') {
-      // v4 style helper
-      body = await req.json();
-    }
-  } catch (e) {
-    context.log.warn('Body parse failed:', e.message);
-  }
-
-  const contentType = (req.headers && (req.headers['content-type'] || req.headers['Content-Type'])) || '';
-  context.log('submitTour: method=%s content-type=%s', req.method, contentType);
-  context.log('submitTour: body=', body);
-
-  // 3) Validate required fields
-  const required = ['company', 'requesterName', 'requesterEmail', 'startUtc', 'endUtc'];
-  const missing = required.filter((k) => !body || body[k] == null || body[k] === '');
-
-  if (missing.length) {
-    return {
+  // Validate required fields
+  if (!company || !requesterEmail || !requesterName) {
+    context.res = {
       status: 400,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
-      body: {
-        error: 'Missing required fields',
-        missing,
-        hint: 'Send JSON with company, requesterName, requesterEmail, startUtc, endUtc',
-      },
+      body: { error: "Missing required fields" }
     };
+    return;
   }
 
-  // 4) TODO: here is where you’ll call SharePoint / Graph to add list item, etc.
-  // For now we echo back to confirm the end-to-end flow is correct.
-  // (You already validated the website->function path; next step is writing to SharePoint.)
-  return {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/json',
-    },
-    body: {
-      ok: true,
-      received: body,
-      // You can also return an ID from SharePoint once we wire that up.
-    },
-  };
-};
+  // Load env vars
+  const tenantId = process.env.TENANT_ID;
+  const clientId = process.env.CLIENT_ID;
+  const clientSecret = process.env.CLIENT_SECRET;
+  const siteHost = process.env.SPO_SITE_HOSTNAME;
+  const sitePath = process.env.SPO_SITE_PATH;
+  const listName = process.env.SPO_LIST_NAME;
+
+  try {
+    // Get access token for Graph
+    const tokenRes = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        scope: "https://graph.microsoft.com/.default",
+        grant_type: "client_credentials"
+      })
+    });
+    const { access_token } = await tokenRes.json();
+
+    // Build payload for SharePoint list
+    const item = {
+      fields: {
+        Title: company,
+        Company: company,
+        RequesterName: requesterName,
+        RequesterEmail: requesterEmail,
+        PreferredStart: startUtc,
+        PreferredEnd: endUtc,
+        PartySize: partySize || 0,
+        Reason: reason || "N/A",
+        Status: "Submitted"
+      }
+    };
+
+    // Create item in SharePoint
+    const graphUrl = `https://graph.microsoft.com/v1.0/sites/${siteHost}:${sitePath}:/lists/${listName}/items`;
+    const graphRes = await fetch(graphUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(item)
+    });
+
+    const graphData = await graphRes.json();
+
+    if (!graphRes.ok) {
+      context.log("Graph error:", graphData);
+      throw new Error(graphData.error?.message || "SharePoint insert failed");
+    }
+
+    context.res = {
+      status: 200,
+      body: { message: "Request received and stored successfully", id: graphData.id }
+    };
+
+  } catch (err) {
+    context.log("Function error:", err);
+    context.res = {
+      status: 500,
+      body: { error: err.message }
+    };
+  }
+}
