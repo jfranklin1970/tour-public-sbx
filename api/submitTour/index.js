@@ -1,47 +1,47 @@
-// /api/submitTour/index.js
+// api/submitTour/index.js  (FINAL)
 export default async function (context, req) {
+  const url = process.env.BOOK_API_URL;
+
+  if (!url) {
+    context.res = { status: 500, body: 'Missing configuration: BOOK_API_URL' };
+    return;
+  }
+
+  // Only pick the fields your downstream expects
+  const b = req.body || {};
+  const outbound = {
+    company:        (b.company || '').trim(),
+    requesterName:  (b.requesterName || '').trim(),
+    requesterEmail: (b.requesterEmail || '').trim(),
+    startUtc:       (b.startUtc || '').trim(),
+    endUtc:         (b.endUtc || '').trim()
+  };
+
+  // quick validation to avoid upstream 400s
+  for (const [k,v] of Object.entries(outbound)) {
+    if (!v) {
+      context.res = { status: 400, body: `Missing required field: ${k}` };
+      return;
+    }
+  }
+
   try {
-    // Read config
-    const BOOK_API_URL = process.env.BOOK_API_URL;
-    if (!BOOK_API_URL) {
-      context.res = { status: 500, jsonBody: { ok: false, error: 'BOOK_API_URL is not set' } };
-      return;
-    }
-
-    // Parse & validate incoming payload
-    const b = req.body || {};
-    const company = (b.company || '').trim();
-    const requesterName = (b.requesterName || '').trim();
-    const requesterEmail = (b.requesterEmail || '').trim();
-    const startUtc = (b.startUtc || '').trim();
-    const endUtc = (b.endUtc || '').trim();
-
-    if (!company || !requesterName || !requesterEmail || !startUtc || !endUtc) {
-      context.res = { status: 400, jsonBody: { ok: false, error: 'Missing required fields' } };
-      return;
-    }
-
-    // Forward only what the backend expects
-    const outbound = { company, requesterName, requesterEmail, startUtc, endUtc };
-
-    // Call your Function App’s book endpoint
-    const r = await fetch(BOOK_API_URL, {
+    const r = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(outbound),
+      body: JSON.stringify(outbound)
     });
 
-    const text = await r.text(); // capture body even on errors
+    const text = await r.text(); // try to read *something* even on errors
 
     if (r.ok || r.status === 201) {
-      context.res = { status: 201, jsonBody: { ok: true } };
+      // let the browser show success
+      context.res = { status: 201, body: text || 'Created' };
     } else {
-      context.res = {
-        status: 502,
-        jsonBody: { ok: false, error: `Upstream ${r.status}: ${text}` }
-      };
+      // bubble exact upstream error for visibility in DevTools
+      context.res = { status: 502, body: `Upstream ${r.status} ${r.statusText}: ${text}` };
     }
   } catch (e) {
-    context.res = { status: 500, jsonBody: { ok: false, error: `Function crash: ${e.message}` } };
+    context.res = { status: 502, body: `Forward call failed: ${e.message || e}` };
   }
 }
