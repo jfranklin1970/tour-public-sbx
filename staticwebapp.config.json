@@ -1,12 +1,4 @@
 {
-  "routes": [
-    {
-      "route": "/api/submitTour",
-      "methods": ["POST", "OPTIONS"],
-      "allowedRoles": ["anonymous"],
-      "rewrite": "https://httpbin.org/post"
-    }
-  ],
   "globalHeaders": {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
