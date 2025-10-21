@@ -1,16 +1,16 @@
-const res = await fetch('/api/submitTour', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(payload)
-});
-
-let data = {};
-try { data = await res.json(); } catch { /* okay if no JSON */ }
-
-if (res.ok) {
-  // show success toast/state
-  showSuccess('Request submitted! We’ll email you after approval.');
-} else {
-  const msg = data?.error || `HTTP ${res.status}`;
-  showError(`Oops: ${msg}`);
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [ "post", "options" ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    }
+  ]
 }
