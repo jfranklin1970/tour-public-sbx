@@ -1,0 +1,9 @@
+{
+  "routes": [
+    {
+      "route": "/api/submitTour",
+      "methods": ["POST", "OPTIONS"],
+      "rewrite": "https://httpbin.org/post"
+    }
+  ]
+}
