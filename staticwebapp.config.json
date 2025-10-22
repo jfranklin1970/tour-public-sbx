@@ -1,5 +1,6 @@
 {
   "globalHeaders": {
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://tourscheduler-api-sbx-bqbuhyd9b2fwgwbz.centralus-01.azurewebsites.net; base-uri 'self'; frame-ancestors 'self'; object-src 'none';"
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type"
