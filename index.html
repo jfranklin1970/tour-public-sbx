@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Kofile — Vendor Tour Request</title>
   <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      label {
+        font-weight: 500;
+      }
+      input, textarea {
+        border-radius: 6px;
+        border: 1px solid #444;
+        padding: 0.5rem;
+        background-color: #111;
+        color: #eee;
+      }
     :root {
       --bg: #0d1117;
       --panel: #161b22;
@@ -43,10 +56,13 @@
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <h1>Request a Vendor Tour</h1>
-      <div class="sub">Submit your details — our team will review and confirm your booking.</div>
-    </header>
+<header>
+  <div class="header" style="text-align:center; margin-bottom: 1.5rem;">
+    <img src="https://kofilepublic.blob.core.windows.net/assets/kofile-logo.png" alt="Kofile Logo" style="height:60px; margin-bottom: 10px;">
+    <h1 style="font-size:1.75rem; font-weight:600;">Request a Dallas Onsite Tour</h1>
+    <p style="color:#ccc;">Submit your details — our team will review and confirm your onsite visit.</p>
+  </div>
+</header>
 
     <section class="card">
       <form id="tourForm" novalidate>
