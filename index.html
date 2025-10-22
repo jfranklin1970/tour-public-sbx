@@ -103,18 +103,18 @@
     <section class="card">
       <form id="tourForm" novalidate>
         <div class="row-1">
-          <label for="Company">Company</label>
-          <input id="Company" name="Company" autocomplete="Organization" required />
+          <label for="company">Company</label>
+          <input id="company" name="company" autocomplete="Organization" required />
         </div>
 
         <div>
-          <label for="RequesterName">Requester name</label>
-          <input id="RequesterName" name="RequesterName" autocomplete="Name" required />
+          <label for="requesterName">Requester name</label>
+          <input id="requesterName" name="requesterName" autocomplete="Name" required />
         </div>
 
         <div>
-          <label for="RequesterEmail">Requester email</label>
-          <input id="RequesterEmail" name="RequesterEmail" type="email" autocomplete="E=mail" required />
+          <label for="requesterEmail">Requester email</label>
+          <input id="requesterEmail" name="requesterEmail" type="email" autocomplete="E=mail" required />
         </div>
 
         <div>
@@ -129,13 +129,13 @@
         </div>
 
         <div>
-          <label for="PartySize">Party size</label>
-          <input id="PartySize" name="PartySize" type="number" min="1" step="1" required value="1" />
+          <label for="partySize">Party size</label>
+          <input id="partySize" name="partySize" type="number" min="1" step="1" required value="1" />
         </div>
 
         <div class="row-1">
-          <label for="Reason">Notes / reason</label>
-          <textarea id="Reason" name="Reason" placeholder="Share any context or requirements…"></textarea>
+          <label for="reason">Notes / reason</label>
+          <textarea id="reason" name="reason" placeholder="Share any context or requirements…"></textarea>
         </div>
 
         <div id="Status" class="Status"></div>
@@ -187,13 +187,13 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const Company        = document.getElementById('company').value.trim();
-      const RequesterName  = document.getElementById('requesterName').value.trim();
-      const RequesterEmail = document.getElementById('requesterEmail').value.trim();
+      const company        = document.getElementById('company').value.trim();
+      const requesterName  = document.getElementById('requesterName').value.trim();
+      const requesterEmail = document.getElementById('requesterEmail').value.trim();
       const startUtc       = toUtcIso(document.getElementById('start').value);
       const endUtc         = toUtcIso(document.getElementById('end').value);
-      const PartySize      = document.getElementById('partySize').value.trim();
-      const Reason         = document.getElementById('reason').value.trim();
+      const partySize      = document.getElementById('partySize').value.trim();
+      const reason         = document.getElementById('reason').value.trim();
 
       // Basic guard
       if (!company || !requesterName || !requesterEmail || !startUtc || !endUtc) {
