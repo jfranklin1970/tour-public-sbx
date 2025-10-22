@@ -4,61 +4,24 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Kofile — Request a Dallas Onsite Tour</title>
+
   <style>
-      /* --- CTA button glow + loading --- */
-      #submitBtn {
-        position: relative;
-        transition: transform .06s ease, filter .2s ease, box-shadow .2s ease;
-        box-shadow: 0 0 0 rgba(59,130,246,0);
-      }
-      #submitBtn:hover:not(.loading):not(:disabled) {
-        filter: brightness(1.06);
-        box-shadow: 0 8px 22px rgba(59,130,246,.35);
-        transform: translateY(-1px);
-      }
-      #submitBtn:active:not(.loading):not(:disabled) {
-        transform: translateY(0);
-        box-shadow: 0 4px 12px rgba(59,130,246,.25);
-      }
-      #submitBtn.loading,
-      #submitBtn:disabled {
-        opacity: .85;
-        cursor: wait;
-        filter: none;
-        box-shadow: none;
-      }
-      
-      /* spinner */
-      #submitBtn.loading::after {
-        content: "";
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        width: 16px;
-        height: 16px;
-        margin-top: -8px;
-        border-radius: 50%;
-        border: 2px solid rgba(255,255,255,.6);
-        border-top-color: transparent;
-        animation: spin .7s linear infinite;
-      }
-      @keyframes spin { to { transform: rotate(360deg); } }
-
-
-    
     :root{
       --bg:#0d1117;--panel:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;
       --accent:#3b82f6;--ok:#22c55e;--err:#ef4444
     }
     *{box-sizing:border-box}
-    html,body{height:100%;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial}
+    html,body{height:100%;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial}
     a{color:var(--accent)}
-    .wrap{max-width:900px;margin:48px auto;padding:0 20px}
-    header{margin-bottom:18px;text-align:center}
+    .wrap{max-width:880px;margin:48px auto;padding:0 20px}
+    header{margin-bottom:22px;text-align:center}
     h1{margin:10px 0 6px;font-size:28px}
     .sub{color:var(--muted)}
-    .logo{height:42px;opacity:.95}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.02)}
+    .logo{height:42px; opacity:.9}
+
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.02)}
+
     form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     .row-1{grid-column:1 / -1}
     label{display:block;font-weight:600;margin:2px 0 8px}
@@ -67,22 +30,28 @@
       border-radius:10px;padding:12px 14px;outline:none;transition:border-color .15s, box-shadow .15s
     }
     input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
-    textarea{min-height:120px;resize:vertical}
-    .actions{grid-column:1 / -1;display:flex;gap:12px;justify-content:flex-end;margin-top:6px}
-    button{background:linear-gradient(90deg,#2563eb,#3b82f6);color:#fff;border:none;padding:12px 18px;border-radius:10px;cursor:pointer;font-weight:600}
-    button.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
-    .status{grid-column:1 / -1;margin-top:6px;border-radius:10px;padding:12px 14px;background:#0b1220;border:1px solid var(--border);display:none}
+    textarea{min-height:110px;resize:vertical}
+
+    .actions{grid-column:1 / -1;display:flex;gap:12px;align-items:center;justify-content:flex-end;margin-top:4px}
+    button{background:linear-gradient(90deg,#2563eb,#3b82f6);color:#fff;border:none;padding:12px 18px;border-radius:10px;cursor:pointer;font-weight:700;letter-spacing:.2px;transition:transform .06s, filter .2s}
+    button:hover{filter:brightness(1.05)} button:active{transform:translateY(1px)}
+    .ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+    .loading{filter:grayscale(.2) brightness(.9);cursor:wait}
+
+    .status{grid-column:1 / -1;margin-top:8px;border-radius:10px;padding:12px 14px;background:#0b1220;border:1px solid var(--border);color:var(--muted);display:none}
     .status.ok{display:block;border-color:rgba(34,197,94,.35);color:#a7f3d0;background:rgba(34,197,94,.08)}
     .status.err{display:block;border-color:rgba(239,68,68,.35);color:#fecaca;background:rgba(239,68,68,.08)}
     .status.info{display:block;border-color:rgba(59,130,246,.35);color:#bfdbfe;background:rgba(59,130,246,.08)}
-    footer{margin-top:22px;text-align:center;color:var(--muted);font-size:12px}
+
+    footer{margin-top:22px;color:var(--muted);text-align:center;font-size:13px}
+    .hint{font-size:12px;color:var(--muted);margin-top:6px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <!-- Swap the src to your hosted logo if you want -->
-      <img class="logo" src="assets/kofile-logo.svg" alt="Kofile logo" />
+      <!-- replace src with your hosted logo if you want -->
+      <img class="logo" src="https://dummyimage.com/240x60/0b1220/3b82f6&text=Kofile" alt="Kofile logo" />
       <h1>Request a Dallas Onsite Tour</h1>
       <div class="sub">Submit your details — our team will review and confirm your onsite visit.</div>
     </header>
@@ -91,22 +60,22 @@
       <form id="tourForm" novalidate>
         <div class="row-1">
           <label for="Company">Company</label>
-          <input id="Company" name="Company" autocomplete="organization" required />
+          <input id="Company" name="Company" required />
         </div>
 
         <div>
           <label for="RequesterName">Requester name</label>
-          <input id="RequesterName" name="RequesterName" autocomplete="name" required />
+          <input id="RequesterName" name="RequesterName" required />
         </div>
 
         <div>
           <label for="RequesterEmail">Requester email</label>
-          <input id="RequesterEmail" name="RequesterEmail" type="email" autocomplete="email" required />
+          <input id="RequesterEmail" name="RequesterEmail" type="email" required />
         </div>
 
         <div>
-          <label for="RequesterPhone">Requester phone</label>
-          <input id="RequesterPhone" name="RequesterPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-0123" />
+          <label for="Phone">Requester phone</label>
+          <input id="Phone" name="Phone" inputmode="tel" placeholder="(555) 555-0123" />
         </div>
 
         <div>
@@ -117,6 +86,7 @@
         <div>
           <label for="PreferredStart">Preferred start (local)</label>
           <input id="PreferredStart" name="PreferredStart" type="datetime-local" required />
+          <div class="hint">We’ll convert this to UTC automatically.</div>
         </div>
 
         <div>
@@ -133,7 +103,8 @@
 
         <div class="actions">
           <button type="button" class="ghost" id="resetBtn">Reset</button>
-          <button type="submit" id="submitBtn"><span>Submit request</span></button>
+          <!-- IMPORTANT: type=button so the browser doesn’t do a GET submit -->
+          <button type="button" id="submitBtn"><span>Submit request</span></button>
         </div>
       </form>
     </section>
@@ -142,148 +113,123 @@
   </div>
 
   <script>
-  // ================== CONFIG ==================
-  // Your APIM public endpoint for POST /book
-  const ENDPOINT = "https://apim-tourscheduler-sbx.azure-api.net/book";
+    // ========= CONFIG =========
+    // TODO: set this to your APIM endpoint:
+    const ENDPOINT = "https://apim-tourscheduler-sbx.azure-api.net/tours/book";
 
-  // ================== HELPERS ==================
-  const form = document.getElementById('tourForm');
-  const statusEl = document.getElementById('status');
-  const submitBtn = document.getElementById('submitBtn');
-  const resetBtn = document.getElementById('resetBtn');
-
-  function show(msg, kind='info'){
-    statusEl.textContent = msg;
-    statusEl.className = 'status ' + kind;
-  }
-
-  // Convert local datetime-local -> strict UTC ISO
-  function toUtcIso(local) {
-    if (!local) return '';
-    // Ensure seconds for Safari: "YYYY-MM-DDTHH:mm" -> ":00"
-    const normalized = local.length === 16 ? local + ':00' : local;
-    const d = new Date(normalized);
-    if (isNaN(d.getTime())) return '';
-    return new Date(d.getTime() - d.getTimezoneOffset()*60000)
-      .toISOString()
-      .replace(/\.\d{3}Z$/, 'Z');
-  }
-
-  // Phone formatting: (123) 456-7890 while typing/pasting
-  (function attachPhoneFormatter(){
-    const phone = document.getElementById('RequesterPhone');
-    if (!phone) return;
-
-    function fmt(digits){
-      const x = digits.replace(/\D/g,'').slice(0,10);
-      if (!x) return '';
-      if (x.length < 4) return `(${x}`;
-      if (x.length < 7) return `(${x.slice(0,3)}) ${x.slice(3)}`;
-      return `(${x.slice(0,3)}) ${x.slice(3,6)}-${x.slice(6)}`;
+    // ========= UTILITIES =========
+    function show(msg, cls = 'info') {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status ' + cls;
     }
 
-    function reformat(e){
-      const el = e.target;
-      const before = el.value;
-      const start = el.selectionStart ?? before.length;
-      const after = fmt(before);
-      if (after === before) return;
-      const delta = after.length - before.length;
-      el.value = after;
-      const pos = Math.max(0, Math.min(after.length, start + delta));
-      try { el.setSelectionRange(pos, pos); } catch(_){}
+    function toUtcIso(local) {
+      if (!local) return '';
+      const d = new Date(local);
+      if (isNaN(d.getTime())) return '';
+      // Convert local to UTC ISO (strip milliseconds)
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+        .toISOString()
+        .replace(/\.\d{3}Z$/, 'Z');
     }
 
-    phone.addEventListener('input', reformat);
-    phone.addEventListener('paste', e=>{
-      e.preventDefault();
-      const s = (e.clipboardData || window.clipboardData).getData('text') || '';
-      phone.value = fmt(s);
-    });
-    phone.addEventListener('blur', ()=>{
-      const digits = phone.value.replace(/\D/g,'');
-      if (digits && digits.length !== 10){
-        phone.setCustomValidity('Phone number must be 10 digits');
-        phone.reportValidity();
-      } else {
-        phone.setCustomValidity('');
+    // Set min for date inputs = now (local)
+    (function setMinDate() {
+      const pad = n => String(n).padStart(2,'0');
+      const now = new Date();
+      const local = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      document.getElementById('PreferredStart').min = local;
+      document.getElementById('PreferredEnd').min   = local;
+      document.getElementById('PreferredStart').step = 60; // 1-minute increments
+      document.getElementById('PreferredEnd').step   = 60;
+    })();
+
+    // ========= PHONE AUTO-FORMAT =========
+    (function wirePhoneMask(){
+      const phone = document.getElementById('Phone');
+      function format(val){
+        const d = val.replace(/\D/g,'').slice(0,10);
+        const a = d.slice(0,3), b = d.slice(3,6), c = d.slice(6,10);
+        if (d.length > 6) return `(${a}) ${b}-${c}`;
+        if (d.length > 3) return `(${a}) ${b}`;
+        if (d.length > 0) return `(${a}`;
+        return '';
       }
-    });
-  })();
-
-  // Keep end >= start (simple guard)
-  (function guardEndAfterStart(){
-    const s = document.getElementById('PreferredStart');
-    const e = document.getElementById('PreferredEnd');
-    function syncMin(){ if (s && e && s.value) e.min = s.value; }
-    if (s) s.addEventListener('change', syncMin);
-    syncMin();
-  })();
-
-  // Reset
-  resetBtn.addEventListener('click', ()=>{
-    form.reset();
-    statusEl.className = 'status';
-    statusEl.textContent = '';
-  });
-
-  // Submit
-  form.addEventListener('submit', async (ev)=>{
-    ev.preventDefault();
-
-    const Company        = document.getElementById('Company').value.trim();
-    const RequesterName  = document.getElementById('RequesterName').value.trim();
-    const RequesterEmail = document.getElementById('RequesterEmail').value.trim();
-    const RequesterPhone = document.getElementById('RequesterPhone').value.trim();
-    const PartySize      = document.getElementById('PartySize').value.trim();
-    const PreferredStart = document.getElementById('PreferredStart').value;
-    const PreferredEnd   = document.getElementById('PreferredEnd').value;
-    const Reason         = document.getElementById('Reason').value.trim();
-
-    const startUtc = toUtcIso(PreferredStart);
-    const endUtc   = toUtcIso(PreferredEnd);
-
-    if (!Company || !RequesterName || !RequesterEmail || !startUtc || !endUtc){
-      show('Please fill Company, Requester name, Requester email, Start and End.', 'err');
-      return;
-    }
-
-    submitBtn.disabled = true;
-    show('Submitting…','info');
-    submitBtn.classList.add('loading');
-
-
-    try{
-      const res = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          company: Company,
-          requesterName: RequesterName,
-          requesterEmail: RequesterEmail,
-          phone: RequesterPhone,           // <- phone travels as "phone"
-          startUtc, endUtc,
-          partySize: Number(PartySize || 1),
-          reason: Reason
-        })
+      phone.addEventListener('input', e => {
+        const start = e.target.selectionStart;
+        const before = e.target.value;
+        e.target.value = format(before);
+        // naive caret restore
+        e.target.selectionStart = e.target.selectionEnd = e.target.value.length;
       });
+      phone.addEventListener('blur', e => { e.target.value = format(e.target.value); });
+    })();
 
-      const text = await res.text();
-      let data; try { data = JSON.parse(text); } catch { data = { message: text }; }
+    // ========= FORM HANDLERS =========
+    const form = document.getElementById('tourForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
-      if (!res.ok){
-        show(data.message || res.statusText || 'Request failed','err');
-      } else {
-        show(data.message || 'Request received. We’ll email you once it’s scheduled.','ok');
-        form.reset();
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      show('', 'info');
+      document.getElementById('status').style.display = 'none';
+    });
+
+    submitBtn.addEventListener('click', handleSubmit);
+
+    async function handleSubmit() {
+      const Company        = document.getElementById('Company').value.trim();
+      const RequesterName  = document.getElementById('RequesterName').value.trim();
+      const RequesterEmail = document.getElementById('RequesterEmail').value.trim();
+      const Phone          = document.getElementById('Phone').value.trim();
+      const PartySize      = document.getElementById('PartySize').value.trim();
+      const startUtc       = toUtcIso(document.getElementById('PreferredStart').value);
+      const endUtc         = toUtcIso(document.getElementById('PreferredEnd').value);
+      const Reason         = document.getElementById('Reason').value.trim();
+
+      if (!Company || !RequesterName || !RequesterEmail || !startUtc || !endUtc) {
+        show('Please fill all required fields (Company, Requester, Email, Start, End).', 'err');
+        return;
       }
-    } catch(err){
-      show(`Network error: ${err.message}`,'err');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.classList.remove('loading');
+
+      submitBtn.disabled = true;
+      submitBtn.classList.add('loading');
+      show('Submitting…', 'info');
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            company: Company,
+            requesterName: RequesterName,
+            requesterEmail: RequesterEmail,
+            phone: Phone,
+            partySize: PartySize,
+            startUtc,
+            endUtc,
+            reason: Reason
+          })
+        });
+
+        const text = await res.text();
+        let data; try { data = JSON.parse(text); } catch { data = { message: text }; }
+
+        if (!res.ok) {
+          show(`Oops: ${data.message || res.statusText || 'Request failed'}`, 'err');
+        } else {
+          show(data.message || 'Request received. We’ll email you once it’s scheduled.', 'ok');
+          form.reset();
+        }
+      } catch (err) {
+        show(`Network error: ${err.message}`, 'err');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+      }
     }
-  });
   </script>
 </body>
 </html>
