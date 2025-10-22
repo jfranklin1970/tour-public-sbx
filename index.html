@@ -16,81 +16,29 @@
       --err: #ef4444;
     }
     * { box-sizing: border-box; }
-    html,body { height:100%; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; }
+    html,body { height:100%; background:var(--bg); color:var(--text); font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji"; }
     a { color: var(--accent); }
     .wrap { max-width: 880px; margin: 48px auto; padding: 0 20px; }
     header { margin-bottom: 20px; }
     h1 { margin: 0 0 6px; font-size: 28px; }
     .sub { color: var(--muted); }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.02);
-    }
-
-    form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.02); }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .row-1 { grid-column: 1 / -1; }
     label { display:block; font-weight:600; margin: 2px 0 8px; }
-    input, textarea, select {
-      width: 100%;
-      background: #0b1220;
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      outline: none;
-      transition: border-color .15s ease, box-shadow .15s ease;
-    }
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(59,130,246,.25);
-    }
+    input, textarea { width: 100%; background: #0b1220; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; outline: none; transition: border-color .15s ease, box-shadow .15s ease; }
+    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.25); }
     textarea { min-height: 110px; resize: vertical; }
-
-    .actions {
-      grid-column: 1 / -1;
-      display:flex; gap:12px; align-items:center; justify-content:flex-end;
-      margin-top: 4px;
-    }
-    button {
-      background: linear-gradient(90deg, #2563eb, #3b82f6);
-      color: white;
-      border: none;
-      padding: 12px 18px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      letter-spacing: .2px;
-      transition: transform .06s ease, filter .2s ease;
-    }
-    button:hover { filter: brightness(1.05); }
-    button:active { transform: translateY(1px); }
-    .ghost { background: transparent; border:1px solid var(--border); color: var(--text); }
-
-    .status {
-      grid-column: 1 / -1;
-      margin-top: 8px;
-      border-radius: 10px;
-      padding: 12px 14px;
-      background: #0b1220;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      display:none;
-    }
-    .status.ok   { display:block; border-color: rgba(34,197,94,.35); color:#a7f3d0; background: rgba(34,197,94,.08); }
-    .status.err  { display:block; border-color: rgba(239,68,68,.35); color:#fecaca; background: rgba(239,68,68,.08); }
-    .status.info { display:block; border-color: rgba(59,130,246,.35); color:#bfdbfe; background: rgba(59,130,246,.08); }
-
-    footer { margin-top: 22px; color: var(--muted); text-align:center; font-size: 13px; }
-    .hint { font-size:12px; color: var(--muted); margin-top:6px; }
+    .actions { grid-column: 1 / -1; display:flex; gap:12px; justify-content:flex-end; margin-top: 4px; }
+    button { background: linear-gradient(90deg,#2563eb,#3b82f6); color:white; border:none; padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:600; transition:transform .06s ease,filter .2s ease; }
+    button:hover { filter:brightness(1.05); }
+    button:active { transform:translateY(1px); }
+    .ghost { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .status { grid-column:1/-1; margin-top:8px; border-radius:10px; padding:12px 14px; background:#0b1220; border:1px solid var(--border); color:var(--muted); display:none; }
+    .status.ok { display:block; border-color:rgba(34,197,94,.35); color:#a7f3d0; background:rgba(34,197,94,.08); }
+    .status.err { display:block; border-color:rgba(239,68,68,.35); color:#fecaca; background:rgba(239,68,68,.08); }
+    .status.info { display:block; border-color:rgba(59,130,246,.35); color:#bfdbfe; background:rgba(59,130,246,.08); }
+    footer { margin-top:22px; color:var(--muted); text-align:center; font-size:13px; }
   </style>
 </head>
 <body>
@@ -103,43 +51,34 @@
     <section class="card">
       <form id="tourForm" novalidate>
         <div class="row-1">
-          <label for="company">Company</label>
-          <input id="company" name="company" autocomplete="Organization" required />
+          <label for="Company">Company</label>
+          <input id="Company" name="Company" required />
         </div>
-
         <div>
-          <label for="requesterName">Requester name</label>
-          <input id="requesterName" name="requesterName" autocomplete="Name" required />
+          <label for="RequesterName">Requester name</label>
+          <input id="RequesterName" name="RequesterName" required />
         </div>
-
         <div>
-          <label for="requesterEmail">Requester email</label>
-          <input id="requesterEmail" name="requesterEmail" type="email" autocomplete="E=mail" required />
+          <label for="RequesterEmail">Requester email</label>
+          <input id="RequesterEmail" name="RequesterEmail" type="email" required />
         </div>
-
         <div>
           <label for="PreferredStart">Preferred start (local)</label>
           <input id="PreferredStart" name="PreferredStart" type="datetime-local" required />
-          <div class="hint">We’ll convert this to UTC automatically.</div>
         </div>
-
         <div>
           <label for="PreferredEnd">Preferred end (local)</label>
           <input id="PreferredEnd" name="PreferredEnd" type="datetime-local" required />
         </div>
-
         <div>
-          <label for="partySize">Party size</label>
-          <input id="partySize" name="partySize" type="number" min="1" step="1" required value="1" />
+          <label for="PartySize">Party size</label>
+          <input id="PartySize" name="PartySize" type="number" min="1" step="1" value="1" required />
         </div>
-
         <div class="row-1">
-          <label for="reason">Notes / reason</label>
-          <textarea id="reason" name="reason" placeholder="Share any context or requirements…"></textarea>
+          <label for="Reason">Notes / reason</label>
+          <textarea id="Reason" name="Reason" placeholder="Share any context or requirements…"></textarea>
         </div>
-
-        <div id="Status" class="Status"></div>
-
+        <div id="status" class="status"></div>
         <div class="actions">
           <button type="button" class="ghost" id="resetBtn">Reset</button>
           <button type="submit" id="submitBtn">Submit request</button>
@@ -151,26 +90,15 @@
   </div>
 
   <script>
-    // ====== CONFIG ======
-    // Quick path (Option A): direct to existing "book" function (includes function key).
+    // === CONFIG ===
     const ENDPOINT = "https://apim-tourscheduler-sbx.azure-api.net/tours/book";
-
-    // Later (recommended): switch to your proxy, e.g.
-    // const ENDPOINT = "https://tourscheduler-api-sbx-bqbuhyd9b2fwgwbz.centralus-01.azurewebsites.net/api/submitTour";
 
     const form = document.getElementById('tourForm');
     const statusEl = document.getElementById('status');
     const resetBtn = document.getElementById('resetBtn');
     const submitBtn = document.getElementById('submitBtn');
 
-    function toUtcIso(local) {
-      // Accepts "yyyy-MM-ddTHH:mm" (from datetime-local) and returns UTC ISO with 'Z'
-      if (!local) return '';
-      const d = new Date(local);
-      // If the browser fails to parse, return empty to trigger validation
-      if (isNaN(d.getTime())) return '';
-      return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().replace(/\.\d{3}Z$/, 'Z');
-    }
+    const toUtcIso = local => local ? new Date(local).toISOString() : '';
 
     function show(msg, cls='info') {
       statusEl.textContent = msg;
@@ -183,51 +111,39 @@
       statusEl.textContent = '';
     });
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
 
-      const company        = document.getElementById('company').value.trim();
-      const requesterName  = document.getElementById('requesterName').value.trim();
-      const requesterEmail = document.getElementById('requesterEmail').value.trim();
-      const startUtc       = toUtcIso(document.getElementById('start').value);
-      const endUtc         = toUtcIso(document.getElementById('end').value);
-      const partySize      = document.getElementById('partySize').value.trim();
-      const reason         = document.getElementById('reason').value.trim();
+      const payload = {
+        company: document.getElementById('Company').value.trim(),
+        requesterName: document.getElementById('RequesterName').value.trim(),
+        requesterEmail: document.getElementById('RequesterEmail').value.trim(),
+        startUtc: toUtcIso(document.getElementById('PreferredStart').value),
+        endUtc: toUtcIso(document.getElementById('PreferredEnd').value),
+        partySize: document.getElementById('PartySize').value.trim(),
+        reason: document.getElementById('Reason').value.trim()
+      };
 
-      // Basic guard
-      if (!company || !requesterName || !requesterEmail || !startUtc || !endUtc) {
-        show('Please fill all required fields (Company, Requester, Email, Start, End).', 'err');
+      if (!payload.company || !payload.requesterName || !payload.requesterEmail || !payload.startUtc || !payload.endUtc) {
+        show('Please fill all required fields.', 'err');
         return;
       }
 
       submitBtn.disabled = true;
-      show('Submitting…', 'info');
+      show('Submitting...', 'info');
 
       try {
         const res = await fetch(ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            company,
-            requesterName,
-            requesterEmail,
-            startUtc,
-            endUtc,
-            partySize,
-            reason
-          })
+          body: JSON.stringify(payload)
         });
 
         let text = await res.text();
-        let data;
-        try { data = JSON.parse(text); } catch { data = { message: text }; }
-
-        if (!res.ok) {
-          show(`Oops: ${data.message || res.statusText || 'Request failed'}`, 'err');
-        } else {
-          show(data.message || 'Request received. We’ll email you once it’s scheduled.', 'ok');
-          form.reset();
-        }
+        let data = {};
+        try { data = JSON.parse(text); } catch {}
+        if (!res.ok) show(`Oops: ${data.message || res.statusText}`, 'err');
+        else show('Request received — we’ll confirm by email soon.', 'ok');
       } catch (err) {
         show(`Network error: ${err.message}`, 'err');
       } finally {
