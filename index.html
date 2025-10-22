@@ -103,42 +103,42 @@
     <section class="card">
       <form id="tourForm" novalidate>
         <div class="row-1">
-          <label for="company">Company</label>
-          <input id="company" name="company" autocomplete="organization" required />
+          <label for="Company">Company</label>
+          <input id="Company" name="Company" autocomplete="Organization" required />
         </div>
 
         <div>
-          <label for="requesterName">Requester name</label>
-          <input id="requesterName" name="requesterName" autocomplete="name" required />
+          <label for="RequesterName">Requester name</label>
+          <input id="RequesterName" name="RequesterName" autocomplete="Name" required />
         </div>
 
         <div>
-          <label for="requesterEmail">Requester email</label>
-          <input id="requesterEmail" name="requesterEmail" type="email" autocomplete="email" required />
+          <label for="RequesterEmail">Requester email</label>
+          <input id="RequesterEmail" name="RequesterEmail" type="email" autocomplete="E=mail" required />
         </div>
 
         <div>
-          <label for="start">Preferred start (local)</label>
-          <input id="start" name="start" type="datetime-local" required />
+          <label for="PreferredStart">Preferred start (local)</label>
+          <input id="PreferredStart" name="PreferredStart" type="datetime-local" required />
           <div class="hint">We’ll convert this to UTC automatically.</div>
         </div>
 
         <div>
-          <label for="end">Preferred end (local)</label>
-          <input id="end" name="end" type="datetime-local" required />
+          <label for="PreferredEnd">Preferred end (local)</label>
+          <input id="PreferredEnd" name="PreferredEnd" type="datetime-local" required />
         </div>
 
         <div>
-          <label for="partySize">Party size</label>
-          <input id="partySize" name="partySize" type="number" min="1" step="1" required value="1" />
+          <label for="PartySize">Party size</label>
+          <input id="PartySize" name="PartySize" type="number" min="1" step="1" required value="1" />
         </div>
 
         <div class="row-1">
-          <label for="reason">Notes / reason</label>
-          <textarea id="reason" name="reason" placeholder="Share any context or requirements…"></textarea>
+          <label for="Reason">Notes / reason</label>
+          <textarea id="Reason" name="Reason" placeholder="Share any context or requirements…"></textarea>
         </div>
 
-        <div id="status" class="status"></div>
+        <div id="Status" class="Status"></div>
 
         <div class="actions">
           <button type="button" class="ghost" id="resetBtn">Reset</button>
@@ -187,13 +187,13 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const company        = document.getElementById('company').value.trim();
-      const requesterName  = document.getElementById('requesterName').value.trim();
-      const requesterEmail = document.getElementById('requesterEmail').value.trim();
+      const Company        = document.getElementById('company').value.trim();
+      const RequesterName  = document.getElementById('requesterName').value.trim();
+      const RequesterEmail = document.getElementById('requesterEmail').value.trim();
       const startUtc       = toUtcIso(document.getElementById('start').value);
       const endUtc         = toUtcIso(document.getElementById('end').value);
-      const partySize      = document.getElementById('partySize').value.trim();
-      const reason         = document.getElementById('reason').value.trim();
+      const PartySize      = document.getElementById('partySize').value.trim();
+      const Reason         = document.getElementById('reason').value.trim();
 
       // Basic guard
       if (!company || !requesterName || !requesterEmail || !startUtc || !endUtc) {
