@@ -1,100 +1,121 @@
-// DO NOT import node-fetch; Node 18+ has global fetch in Azure Functions.
-// import fetch from "node-fetch";
+const fetch = require("node-fetch");
 
-export default async function (context, req) {
+const {
+  TENANT_ID,
+  CLIENT_ID,
+  CLIENT_SECRET,
+  SPO_SITE_HOSTNAME,
+  SPO_SITE_PATH,
+  SPO_LIST_NAME
+} = process.env;
+
+async function getAppOnlyToken(scope) {
+  const url = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`;
+  const body = new URLSearchParams({
+    client_id: CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+    scope,
+    grant_type: "client_credentials"
+  });
+  const r = await fetch(url, { method: "POST", body });
+  if (!r.ok) throw new Error(`Token error: ${r.status} ${await r.text()}`);
+  return (await r.json()).access_token;
+}
+
+function toIsoZ(x) {
+  if (!x) return null;
+  // accept either ISO already, or 'yyyy-MM-ddTHH:mm' from <input type=datetime-local>
+  const d = new Date(x);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+    .toISOString()
+    .replace(/\.\d{3}Z$/, "Z");
+}
+
+module.exports = async function (context, req) {
+  // CORS preflight
+  if (req.method === "OPTIONS") {
+    context.res = {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": req.headers.origin || "*",
+        "Access-Control-Allow-Methods": "POST,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization"
+      }
+    };
+    return;
+  }
+
   try {
-    // 1) Validate incoming payload
-    const { company, requesterName, requesterEmail, startUtc, endUtc, partySize, reason } = req.body || {};
-    if (!company || !requesterName || !requesterEmail) {
+    const {
+      company,
+      requesterName,
+      requesterEmail,
+      start,      // expects 'yyyy-MM-ddTHH:mm' or ISO
+      end,        // expects 'yyyy-MM-ddTHH:mm' or ISO
+      partySize,
+      reason
+    } = req.body || {};
+
+    if (!company || !requesterName || !requesterEmail || !start || !end) {
       context.res = { status: 400, body: { error: "Missing required fields" } };
       return;
     }
 
-    // 2) Validate required env vars early (fail fast, readable)
-    const required = [
-      "TENANT_ID",
-      "CLIENT_ID",
-      "CLIENT_SECRET",
-      "SPO_SITE_HOSTNAME",
-      "SPO_SITE_PATH",
-      "SPO_LIST_NAME"
-    ];
-    for (const k of required) {
-      if (!process.env[k]) throw new Error(`Missing environment variable: ${k}`);
+    const preferredStart = toIsoZ(start);
+    const preferredEnd   = toIsoZ(end);
+    if (!preferredStart || !preferredEnd) {
+      context.res = { status: 400, body: { error: "Invalid start/end" } };
+      return;
     }
 
-    const tenantId   = process.env.TENANT_ID;
-    const clientId   = process.env.CLIENT_ID;
-    const clientSecret = process.env.CLIENT_SECRET;
-    const siteHost   = process.env.SPO_SITE_HOSTNAME;   // e.g. kofile0.sharepoint.com
-    const sitePath   = process.env.SPO_SITE_PATH;       // e.g. /sites/KO-TourOperations
-    const listName   = process.env.SPO_LIST_NAME;       // e.g. TourRequests
+    const token = await getAppOnlyToken("https://graph.microsoft.com/.default");
 
-    // 3) AAD token for Microsoft Graph
-    const tokenRes = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: clientId,
-        client_secret: clientSecret,
-        scope: "https://graph.microsoft.com/.default",
-        grant_type: "client_credentials"
-      })
-    });
-
-    const tokenJson = await tokenRes.json();
-    if (!tokenRes.ok) {
-      throw new Error(`Token error: ${tokenJson.error_description || JSON.stringify(tokenJson)}`);
-    }
-    const accessToken = tokenJson.access_token;
-
-    // 4) Build SharePoint list item payload
-    const item = {
-      fields: {
-        Title: company,
-        Company: company,
-        RequesterName: requesterName,
-        RequesterEmail: requesterEmail,
-        PreferredStart: startUtc || null,
-        PreferredEnd: endUtc || null,
-        PartySize: partySize ?? null,
-        Reason: reason || "N/A",
-        Status: "Submitted"
-      }
+    // Build list item payload (SharePoint modern list)
+    const fields = {
+      Title: `Vendor Tour — ${company}`,
+      RequesterName: requesterName,
+      RequesterEmail: requesterEmail,
+      Company: company,
+      PartySize: partySize ? Number(partySize) : null,
+      Reason: reason || "",
+      PreferredStart: preferredStart,
+      PreferredEnd: preferredEnd,
+      Status: "Pending"
     };
 
-    // 5) Create item in SharePoint via Graph
-    const graphUrl = `https://graph.microsoft.com/v1.0/sites/${siteHost}:${sitePath}:/lists/${encodeURIComponent(listName)}/items`;
-    const spRes = await fetch(graphUrl, {
+    // 1) Resolve siteId from hostname + path
+    const siteUrl = `https://graph.microsoft.com/v1.0/sites/${SPO_SITE_HOSTNAME}:${SPO_SITE_PATH}`;
+    const sRes = await fetch(siteUrl, { headers: { Authorization: `Bearer ${token}` } });
+    if (!sRes.ok) throw new Error(`Get siteId failed: ${sRes.status} ${await sRes.text()}`);
+    const site = await sRes.json();
+
+    // 2) Create the list item
+    const createUrl = `https://graph.microsoft.com/v1.0/sites/${site.id}/lists/${encodeURIComponent(SPO_LIST_NAME)}/items`;
+    const body = { fields }; // Graph expects { fields: { ... } }
+    const iRes = await fetch(createUrl, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(item)
+      body: JSON.stringify(body)
     });
 
-    const spJson = await spRes.json();
-    if (!spRes.ok) {
-      // Log everything server-side and return a readable error
-      context.log("Graph error:", spJson);
-      throw new Error(spJson?.error?.message || JSON.stringify(spJson));
-    }
+    if (!iRes.ok) throw new Error(`Create item failed: ${iRes.status} ${await iRes.text()}`);
+    const item = await iRes.json();
 
-    // 6) Success
     context.res = {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-      body: { message: "Request stored", id: spJson?.id || spJson?.data?.id || null }
+      status: 201,
+      headers: { "Access-Control-Allow-Origin": req.headers.origin || "*" },
+      body: { ok: true, itemId: item?.id }
     };
-
   } catch (err) {
-    // Make sure we always return a response (avoid 0 content-length)
-    context.log.error("Function error:", err);
+    context.log.error(err);
     context.res = {
       status: 500,
-      headers: { "Content-Type": "application/json" },
-      body: { error: String(err.message || err) }
+      headers: { "Access-Control-Allow-Origin": req.headers.origin || "*" },
+      body: { error: err.message }
     };
   }
-}
+};
