@@ -67,16 +67,16 @@
           <input id="Phone" name="Phone" type="tel" placeholder="(555) 555-0123" />
         </div>
         <div>
+          <label for="PartySize">Party size</label>
+          <input id="PartySize" name="PartySize" type="number" min="1" step="1" value="1" required />
+        </div>
+        <div>
           <label for="PreferredStart">Preferred start (local)</label>
           <input id="PreferredStart" name="PreferredStart" type="datetime-local" required />
         </div>
         <div>
           <label for="PreferredEnd">Preferred end (local)</label>
           <input id="PreferredEnd" name="PreferredEnd" type="datetime-local" required />
-        </div>
-        <div>
-          <label for="PartySize">Party size</label>
-          <input id="PartySize" name="PartySize" type="number" min="1" step="1" value="1" required />
         </div>
         <div class="row-1">
           <label for="Reason">Notes / reason</label>
@@ -126,9 +126,9 @@
         requesterName: document.getElementById('RequesterName').value.trim(),
         requesterEmail: document.getElementById('RequesterEmail').value.trim(),
         phone: Phone,
+        partySize: document.getElementById('PartySize').value.trim(),
         startUtc: toUtcIso(document.getElementById('PreferredStart').value),
         endUtc: toUtcIso(document.getElementById('PreferredEnd').value),
-        partySize: document.getElementById('PartySize').value.trim(),
         reason: document.getElementById('Reason').value.trim()
       };
 
