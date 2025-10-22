@@ -176,19 +176,74 @@
         submitBtn.disabled = false;
       }
     });
-    // Auto-format phone input as (###) ###-####
-    document.getElementById("Phone").addEventListener("input", function (e) {
-      let x = e.target.value.replace(/\D/g, "").slice(0, 10);
-      if (x.length >= 7) {
-        e.target.value = `(${x.slice(0,3)}) ${x.slice(3,6)}-${x.slice(6)}`;
-      } else if (x.length >= 4) {
-        e.target.value = `(${x.slice(0,3)}) ${x.slice(3)}`;
-      } else if (x.length > 0) {
-        e.target.value = `(${x}`;
-      } else {
-        e.target.value = "";
-      }
-    });
-  </script>
+<!-- Phone field (make sure the id matches) -->
+<input id="RequesterPhone"
+       name="RequesterPhone"
+       type="tel"
+       inputmode="tel"
+       autocomplete="tel"
+       placeholder="(555) 555-0123"
+       maxlength="14" />
+
+<script>
+// Ensure DOM is loaded if this script isn't at the bottom
+document.addEventListener('DOMContentLoaded', () => {
+  const phone = document.getElementById('RequesterPhone');
+  if (!phone) return; // field not on this page
+
+  // Format "(123) 456-7890"
+  function formatPhone(digits) {
+    const d = digits.replace(/\D/g, '').slice(0, 10);
+    if (!d) return '';
+    if (d.length < 4) return `(${d}`;
+    if (d.length < 7) return `(${d.slice(0,3)}) ${d.slice(3)}`;
+    return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+  }
+
+  // Reformat as the user types, keep caret position natural
+  function reformat(e) {
+    const el = e.target;
+    const before = el.value;
+    const start = el.selectionStart ?? before.length;
+
+    const digits = before.replace(/\D/g, '').slice(0,10);
+    const after = formatPhone(digits);
+
+    // If nothing changed, do nothing
+    if (after === before) return;
+
+    // Estimate caret movement
+    const delta = after.length - before.length;
+    el.value = after;
+
+    // Put caret in a sensible place
+    let pos = start + delta;
+    pos = Math.max(0, Math.min(after.length, pos));
+    try { el.setSelectionRange(pos, pos); } catch (_) {}
+  }
+
+  // Paste support (strip non-digits and format)
+  phone.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const pasted = (e.clipboardData || window.clipboardData).getData('text') || '';
+    phone.value = formatPhone(pasted);
+  });
+
+  // Typing support
+  phone.addEventListener('input', reformat);
+
+  // Simple validity on blur (10 digits required)
+  phone.addEventListener('blur', () => {
+    const digits = phone.value.replace(/\D/g, '');
+    if (digits.length !== 10) {
+      phone.style.borderColor = 'red';
+      phone.setCustomValidity('Phone number must be 10 digits');
+    } else {
+      phone.style.borderColor = '';
+      phone.setCustomValidity('');
+    }
+  });
+});
+</script>
 </body>
 </html>
