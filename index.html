@@ -127,8 +127,10 @@
         requesterEmail: document.getElementById('RequesterEmail').value.trim(),
         phone: Phone,
         partySize: document.getElementById('PartySize').value.trim(),
-        startUtc: toUtcIso(document.getElementById('PreferredStart').value),
-        endUtc: toUtcIso(document.getElementById('PreferredEnd').value),
+        // Convert local datetime to UTC ISO format
+        const StartUtc = new Date(document.getElementById('PreferredStart').value).toISOString();
+        const EndUtc = new Date(document.getElementById('PreferredEnd').value).toISOString();
+
         reason: document.getElementById('Reason').value.trim()
       };
 
