@@ -104,7 +104,7 @@
     const statusEl = document.getElementById('status');
     const resetBtn = document.getElementById('resetBtn');
     const submitBtn = document.getElementById('submitBtn');
-
+    const Phone = document.getElementById('Phone').value.trim();
     const toUtcIso = local => local ? new Date(local).toISOString() : '';
 
     function show(msg, cls='info') {
