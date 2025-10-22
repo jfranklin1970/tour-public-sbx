@@ -176,6 +176,19 @@
         submitBtn.disabled = false;
       }
     });
+    // Auto-format phone input as (###) ###-####
+    document.getElementById("RequesterPhone").addEventListener("input", function (e) {
+      let x = e.target.value.replace(/\D/g, "").slice(0, 10);
+      if (x.length >= 7) {
+        e.target.value = `(${x.slice(0,3)}) ${x.slice(3,6)}-${x.slice(6)}`;
+      } else if (x.length >= 4) {
+        e.target.value = `(${x.slice(0,3)}) ${x.slice(3)}`;
+      } else if (x.length > 0) {
+        e.target.value = `(${x}`;
+      } else {
+        e.target.value = "";
+      }
+    });
   </script>
 </body>
 </html>
