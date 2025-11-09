@@ -1,17 +1,6 @@
 {
-  "bindings": [
-    {
-      "authLevel": "function",
-      "type": "httpTrigger",
-      "direction": "in",
-      "name": "req",
-      "methods": [ "post", "options" ],
-      "route": "submitTour"
-    },
-    {
-      "type": "http",
-      "direction": "out",
-      "name": "res"
-    }
-  ]
+"bindings": [
+{ "authLevel": "function", "type": "httpTrigger", "direction": "in", "name": "req", "methods": ["post","options"], "route": "submitTour" },
+{ "type": "http", "direction": "out", "name": "res" }
+]
 }
