@@ -1,7 +1,7 @@
 // assets/script.js — drop-in replacement
 
 // ====== CONFIG ======
-const ENDPOINT = "/api/submitTour"; // or your APIM URL
+const ENDPOINT = "https://apim-tourscheduler-sbx.azure-api.net/tours/book"; // or your APIM URL
 
 // ====== UI helpers ======
 function show(msg, cls = "info") {
