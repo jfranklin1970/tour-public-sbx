@@ -1,9 +1,4 @@
 const fetch = require("node-fetch");
-
-
-const {
-TENANT_ID,
-CLIENT_ID,
 CLIENT_SECRET,
 SPO_SITE_HOSTNAME,
 SPO_SITE_PATH,
