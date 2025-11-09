@@ -26,9 +26,24 @@ const RequesterEmail = document.getElementById('RequesterEmail').value.trim();
 const Phone = document.getElementById('Phone').value.trim();
 const PartySize = document.getElementById('PartySize').value.trim();
 const TourDate = document.getElementById('TourDate').value.trim();
-const StartTime = document.getElementById('StartTime').value.trim();
-const EndTime = document.getElementById('EndTime').value.trim();
 const Reason = document.getElementById('Reason').value.trim();
+
+function to24(hh, mm, mer){ let h=parseInt(hh,10)%12; if(mer==='PM') h+=12; return `${String(h).padStart(2,'0')}:${mm}`; }
+
+const startHHMM = to24(
+  document.getElementById('StartHour').value,
+  document.getElementById('StartMin').value,
+  document.getElementById('StartMer').value
+);
+const endHHMM = to24(
+  document.getElementById('EndHour').value,
+  document.getElementById('EndMin').value,
+  document.getElementById('EndMer').value
+);
+
+const start = combineDateTime(document.getElementById('TourDate').value, startHHMM);
+const end   = combineDateTime(document.getElementById('TourDate').value, endHHMM);
+
 
 
 const start = combineDateTime(TourDate, StartTime);
