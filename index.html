@@ -55,18 +55,18 @@
 
 <div>
   <label for="StartHour">Start time <span class="req">*</span></label>
-  <div class="grid2">
-    <select id="StartHour" required>
+  <div class="time-group">
+    <select id="StartHour" class="time-select" required>
       <option value="">HH</option>
       <option>01</option><option>02</option><option>03</option><option>04</option>
       <option>05</option><option>06</option><option>07</option><option>08</option>
       <option>09</option><option>10</option><option>11</option><option>12</option>
     </select>
-    <select id="StartMin" required>
+    <select id="StartMin" class="time-select" required>
       <option value="">MM</option>
       <option>00</option><option>15</option><option>30</option><option>45</option>
     </select>
-    <select id="StartMer" required>
+    <select id="StartMer" class="time-select mer" required>
       <option>AM</option><option>PM</option>
     </select>
   </div>
@@ -76,18 +76,18 @@
 
 <div>
   <label for="EndHour">End time <span class="req">*</span></label>
-  <div class="grid2">
-    <select id="EndHour" required>
+  <div class="time-group">
+    <select id="EndHour" class="time-select" required>
       <option value="">HH</option>
       <option>01</option><option>02</option><option>03</option><option>04</option>
       <option>05</option><option>06</option><option>07</option><option>08</option>
       <option>09</option><option>10</option><option>11</option><option>12</option>
     </select>
-    <select id="EndMin" required>
+    <select id="EndMin" class="time-select" required>
       <option value="">MM</option>
       <option>00</option><option>15</option><option>30</option><option>45</option>
     </select>
-    <select id="EndMer" required>
+    <select id="EndMer" class="time-select mer" required>
       <option>AM</option><option>PM</option>
     </select>
   </div>
