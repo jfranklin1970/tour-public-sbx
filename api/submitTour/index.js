@@ -53,17 +53,18 @@ const site = await sRes.json();
 
 
 const fields = {
-Title: `Vendor Tour — ${company}`,
-RequesterName: requesterName,
-RequesterEmail: requesterEmail,
-Phone: phone || null,
-Company: company,
-PartySize: partySize ? Number(partySize) : null,
-Reason: reason || "",
-PreferredStart: preferredStart,
-PreferredEnd: preferredEnd,
-Status: "Pending"
+  Title: `Vendor Tour — ${company}`,
+  Company: company,
+  Requesters_x0020_Name: requesterName,
+  Requesters_x0020_Email: requesterEmail,
+  Phone: phone || "",
+  Party_x0020_Size: partySize ? Number(partySize) : null,
+  Reason: reason || "",
+  Preferred_x0020_Start: preferredStart,
+  Preferred_x0020_End: preferredEnd,
+  Status: "Pending"
 };
+
 
 
 const createUrl = `https://graph.microsoft.com/v1.0/sites/${site.id}/lists/${encodeURIComponent(SPO_LIST_NAME)}/items`;
