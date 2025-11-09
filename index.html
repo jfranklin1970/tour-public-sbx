@@ -1,235 +1,91 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kofile — Request a Dallas Onsite Tour</title>
-
-  <style>
-    :root{
-      --bg:#0d1117;--panel:#161b22;--border:#30363d;--text:#c9d1d9;--muted:#8b949e;
-      --accent:#3b82f6;--ok:#22c55e;--err:#ef4444
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial}
-    a{color:var(--accent)}
-    .wrap{max-width:880px;margin:48px auto;padding:0 20px}
-    header{margin-bottom:22px;text-align:center}
-    h1{margin:10px 0 6px;font-size:28px}
-    .sub{color:var(--muted)}
-    .logo{height:42px; opacity:.9}
-
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;
-      box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.02)}
-
-    form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .row-1{grid-column:1 / -1}
-    label{display:block;font-weight:600;margin:2px 0 8px}
-    input,textarea,select{
-      width:100%;background:#0b1220;color:var(--text);border:1px solid var(--border);
-      border-radius:10px;padding:12px 14px;outline:none;transition:border-color .15s, box-shadow .15s
-    }
-    input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
-    textarea{min-height:110px;resize:vertical}
-
-    .actions{grid-column:1 / -1;display:flex;gap:12px;align-items:center;justify-content:flex-end;margin-top:4px}
-    button{background:linear-gradient(90deg,#2563eb,#3b82f6);color:#fff;border:none;padding:12px 18px;border-radius:10px;cursor:pointer;font-weight:700;letter-spacing:.2px;transition:transform .06s, filter .2s}
-    button:hover{filter:brightness(1.05)} button:active{transform:translateY(1px)}
-    .ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
-    .loading{filter:grayscale(.2) brightness(.9);cursor:wait}
-
-    .status{grid-column:1 / -1;margin-top:8px;border-radius:10px;padding:12px 14px;background:#0b1220;border:1px solid var(--border);color:var(--muted);display:none}
-    .status.ok{display:block;border-color:rgba(34,197,94,.35);color:#a7f3d0;background:rgba(34,197,94,.08)}
-    .status.err{display:block;border-color:rgba(239,68,68,.35);color:#fecaca;background:rgba(239,68,68,.08)}
-    .status.info{display:block;border-color:rgba(59,130,246,.35);color:#bfdbfe;background:rgba(59,130,246,.08)}
-
-    footer{margin-top:22px;color:var(--muted);text-align:center;font-size:13px}
-    .hint{font-size:12px;color:var(--muted);margin-top:6px}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kofile — Request a Dallas Onsite Tour</title>
+<link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <!-- replace src with your hosted logo if you want -->
-      <img class="logo" src="https://kofile.com/wp-content/uploads/2021/04/Kofile-RGB-onLight.svg" alt="Kofile logo" />
-      <h1>Request a Dallas Onsite Tour</h1>
-      <div class="sub">Submit your details — our team will review and confirm your onsite visit.</div>
-    </header>
+<div class="wrap">
+<header>
+<img class="logo" src="https://kofile.com/wp-content/uploads/2021/04/Kofile-RGB-onLight.svg" alt="Kofile logo" />
+<h1>Request a Dallas Onsite Tour</h1>
+<div class="sub">Pick one day and a start/end time. We’ll confirm by email.</div>
+</header>
 
-    <section class="card">
-      <form id="tourForm" novalidate>
-        <div class="row-1">
-          <label for="Company">Company</label>
-          <input id="Company" name="Company" required />
-        </div>
 
-        <div>
-          <label for="RequesterName">Requester name</label>
-          <input id="RequesterName" name="RequesterName" required />
-        </div>
+<section class="card">
+<form id="tourForm" novalidate>
+<div class="row-1">
+<label for="Company">Company <span class="req">*</span></label>
+<input id="Company" name="Company" required />
+</div>
 
-        <div>
-          <label for="RequesterEmail">Requester email</label>
-          <input id="RequesterEmail" name="RequesterEmail" type="email" required />
-        </div>
 
-        <div>
-          <label for="Phone">Requester phone</label>
-          <input id="Phone" name="Phone" inputmode="tel" placeholder="(555) 555-0123" />
-        </div>
+<div>
+<label for="RequesterName">Requester name <span class="req">*</span></label>
+<input id="RequesterName" name="RequesterName" required />
+</div>
 
-        <div>
-          <label for="PartySize">Party size</label>
-          <input id="PartySize" name="PartySize" type="number" min="1" step="1" value="1" required />
-        </div>
 
-        <div>
-          <label for="PreferredStart">Preferred start (local)</label>
-          <input id="PreferredStart" name="PreferredStart" type="datetime-local" required />
-          <div class="hint">We’ll convert this to UTC automatically.</div>
-        </div>
+<div>
+<label for="RequesterEmail">Requester email <span class="req">*</span></label>
+<input id="RequesterEmail" name="RequesterEmail" type="email" required />
+</div>
 
-        <div>
-          <label for="PreferredEnd">Preferred end (local)</label>
-          <input id="PreferredEnd" name="PreferredEnd" type="datetime-local" required />
-        </div>
 
-        <div class="row-1">
-          <label for="Reason">Notes / reason</label>
-          <textarea id="Reason" name="Reason" placeholder="Share any context or requirements…"></textarea>
-        </div>
+<div>
+<label for="Phone">Requester phone</label>
+<input id="Phone" name="Phone" inputmode="tel" placeholder="(555) 555-0123" />
+</div>
 
-        <div id="status" class="status"></div>
 
-        <div class="actions">
-          <button type="button" class="ghost" id="resetBtn">Reset</button>
-          <!-- IMPORTANT: type=button so the browser doesn’t do a GET submit -->
-          <button type="button" id="submitBtn"><span>Submit request</span></button>
-        </div>
-      </form>
-    </section>
+<div>
+<label for="PartySize">Party size</label>
+<input id="PartySize" name="PartySize" type="number" min="1" step="1" value="1" required />
+</div>
 
-    <footer>© Kofile</footer>
-  </div>
 
-  <script>
-    // ========= CONFIG =========
-    // TODO: set this to your APIM endpoint:
-    const ENDPOINT = "https://apim-tourscheduler-sbx.azure-api.net/tours/book";
+<div>
+<label for="TourDate">Tour date <span class="req">*</span></label>
+<input id="TourDate" name="TourDate" type="date" required />
+</div>
 
-    // ========= UTILITIES =========
-    function show(msg, cls = 'info') {
-      const el = document.getElementById('status');
-      el.textContent = msg;
-      el.className = 'status ' + cls;
-    }
 
-    function toUtcIso(local) {
-      if (!local) return '';
-      const d = new Date(local);
-      if (isNaN(d.getTime())) return '';
-      // Convert local to UTC ISO (strip milliseconds)
-      return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-        .toISOString()
-        .replace(/\.\d{3}Z$/, 'Z');
-    }
+<div>
+<label for="StartTime">Start time <span class="req">*</span></label>
+<input id="StartTime" name="StartTime" type="time" required />
+</div>
 
-    // Set min for date inputs = now (local)
-    (function setMinDate() {
-      const pad = n => String(n).padStart(2,'0');
-      const now = new Date();
-      const local = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      document.getElementById('PreferredStart').min = local;
-      document.getElementById('PreferredEnd').min   = local;
-      document.getElementById('PreferredStart').step = 60; // 1-minute increments
-      document.getElementById('PreferredEnd').step   = 60;
-    })();
 
-    // ========= PHONE AUTO-FORMAT =========
-    (function wirePhoneMask(){
-      const phone = document.getElementById('Phone');
-      function format(val){
-        const d = val.replace(/\D/g,'').slice(0,10);
-        const a = d.slice(0,3), b = d.slice(3,6), c = d.slice(6,10);
-        if (d.length > 6) return `(${a}) ${b}-${c}`;
-        if (d.length > 3) return `(${a}) ${b}`;
-        if (d.length > 0) return `(${a}`;
-        return '';
-      }
-      phone.addEventListener('input', e => {
-        const start = e.target.selectionStart;
-        const before = e.target.value;
-        e.target.value = format(before);
-        // naive caret restore
-        e.target.selectionStart = e.target.selectionEnd = e.target.value.length;
-      });
-      phone.addEventListener('blur', e => { e.target.value = format(e.target.value); });
-    })();
+<div>
+<label for="EndTime">End time <span class="req">*</span></label>
+<input id="EndTime" name="EndTime" type="time" required />
+</div>
 
-    // ========= FORM HANDLERS =========
-    const form = document.getElementById('tourForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const resetBtn = document.getElementById('resetBtn');
 
-    resetBtn.addEventListener('click', () => {
-      form.reset();
-      show('', 'info');
-      document.getElementById('status').style.display = 'none';
-    });
+<div class="row-1">
+<label for="Reason">Notes / reason</label>
+<textarea id="Reason" name="Reason" placeholder="Share any context or requirements…"></textarea>
+</div>
 
-    submitBtn.addEventListener('click', handleSubmit);
 
-    async function handleSubmit() {
-      const Company        = document.getElementById('Company').value.trim();
-      const RequesterName  = document.getElementById('RequesterName').value.trim();
-      const RequesterEmail = document.getElementById('RequesterEmail').value.trim();
-      const Phone          = document.getElementById('Phone').value.trim();
-      const PartySize      = document.getElementById('PartySize').value.trim();
-      const startUtc       = toUtcIso(document.getElementById('PreferredStart').value);
-      const endUtc         = toUtcIso(document.getElementById('PreferredEnd').value);
-      const Reason         = document.getElementById('Reason').value.trim();
+<div id="status" class="status"></div>
 
-      if (!Company || !RequesterName || !RequesterEmail || !startUtc || !endUtc) {
-        show('Please fill all required fields (Company, Requester, Email, Start, End).', 'err');
-        return;
-      }
 
-      submitBtn.disabled = true;
-      submitBtn.classList.add('loading');
-      show('Submitting…', 'info');
+<div class="actions">
+<button type="button" class="ghost" id="resetBtn">Reset</button>
+<button type="button" id="submitBtn"><span>Submit request</span></button>
+</div>
+</form>
+</section>
 
-      try {
-        const res = await fetch(ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            company: Company,
-            requesterName: RequesterName,
-            requesterEmail: RequesterEmail,
-            phone: Phone,
-            partySize: PartySize,
-            startUtc,
-            endUtc,
-            reason: Reason
-          })
-        });
 
-        const text = await res.text();
-        let data; try { data = JSON.parse(text); } catch { data = { message: text }; }
+<footer>© Kofile</footer>
+</div>
 
-        if (!res.ok) {
-          show(`Oops: ${data.message || res.statusText || 'Request failed'}`, 'err');
-        } else {
-          show(data.message || 'Request received. We’ll email you once it’s scheduled.', 'ok');
-          form.reset();
-        }
-      } catch (err) {
-        show(`Network error: ${err.message}`, 'err');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('loading');
-      }
-    }
-  </script>
+
+<script src="assets/script.js"></script>
 </body>
 </html>
