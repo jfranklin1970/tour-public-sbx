@@ -1,7 +1,5 @@
-// assets/script.js — drop-in replacement
-
 // ====== CONFIG ======
-const ENDPOINT = "https://apim-tourscheduler-sbx.azure-api.net/tours/book"; // or your APIM URL
+const ENDPOINT = "https://apim-tourscheduler-sbx.azure-api.net/tours/book";
 
 // ====== UI helpers ======
 function show(msg, cls = "info") {
@@ -13,7 +11,7 @@ function show(msg, cls = "info") {
 
 function combineDateTime(dateVal, hhmm) {
   if (!dateVal || !hhmm) return "";
-  const local = `${dateVal}T${hhmm}`; // yyyy-MM-ddTHH:mm
+  const local = `${dateVal}T${hhmm}`;
   const d = new Date(local);
   if (isNaN(d.getTime())) return "";
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
@@ -27,18 +25,6 @@ function to24(hh, mm, mer) {
   if (mer === "PM") h += 12;
   return `${String(h).padStart(2, "0")}:${mm}`;
 }
-
-// ====== init min + steps ======
-(function init() {
-  const pad = (n) => String(n).padStart(2, "0");
-  const now = new Date();
-  const d = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  const dateEl = document.getElementById("TourDate");
-  if (dateEl) dateEl.min = d;
-
-  // ensure minute selects are quarter-hour only (HTML already limits options)
-  // no-op here on purpose to keep behavior consistent across browsers
-})();
 
 // ====== phone auto-format ======
 (function wirePhoneMask() {
@@ -56,9 +42,7 @@ function to24(hh, mm, mer) {
 
   phone.addEventListener("input", (e) => {
     const before = e.target.value;
-    const selStart = e.target.selectionStart;
     e.target.value = format(before);
-    // keep it simple: caret to end
     e.target.selectionStart = e.target.selectionEnd = e.target.value.length;
   });
 
@@ -84,7 +68,6 @@ if (submitBtn) {
 }
 
 async function handleSubmit() {
-  // Read values
   const Company        = document.getElementById("Company").value.trim();
   const RequesterName  = document.getElementById("RequesterName").value.trim();
   const RequesterEmail = document.getElementById("RequesterEmail").value.trim();
@@ -93,7 +76,6 @@ async function handleSubmit() {
   const TourDate       = document.getElementById("TourDate").value.trim();
   const Reason         = document.getElementById("Reason").value.trim();
 
-  // New dropdowns
   const StartHour = document.getElementById("StartHour").value.trim();
   const StartMin  = document.getElementById("StartMin").value.trim();
   const StartMer  = document.getElementById("StartMer").value.trim();
@@ -103,13 +85,11 @@ async function handleSubmit() {
 
   const startHHMM = to24(StartHour, StartMin, StartMer);
   const endHHMM   = to24(EndHour, EndMin, EndMer);
-
   const start = combineDateTime(TourDate, startHHMM);
   const end   = combineDateTime(TourDate, endHHMM);
 
-  // Basic validation
   if (!Company || !RequesterName || !RequesterEmail || !TourDate || !start || !end) {
-    show("Please fill all required fields (Company, Requester, Email, Date, Start, End).", "err");
+    show("Please fill all required fields.", "err");
     return;
   }
   if (new Date(end) <= new Date(start)) {
@@ -117,9 +97,7 @@ async function handleSubmit() {
     return;
   }
 
-  // Submit
   submitBtn.disabled = true;
-  submitBtn.classList.add("loading");
   show("Submitting…", "info");
 
   try {
@@ -130,10 +108,13 @@ async function handleSubmit() {
         company: Company,
         requesterName: RequesterName,
         requesterEmail: RequesterEmail,
+        requester_email: RequesterEmail,
+        email: RequesterEmail,
         phone: Phone,
-        partySize: PartySize,
-        start, // UTC ISO
-        end,   // UTC ISO
+        partySize: Number(PartySize) || null,
+        start, end,
+        startUtc: start, endUtc: end,
+        preferredStart: start, preferredEnd: end,
         reason: Reason
       })
     });
@@ -152,6 +133,5 @@ async function handleSubmit() {
     show(`Network error: ${err.message}`, "err");
   } finally {
     submitBtn.disabled = false;
-    submitBtn.classList.remove("loading");
   }
 }
