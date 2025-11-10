@@ -79,21 +79,21 @@
   <input id="TourDate" name="TourDate" type="date" required />
 </div>
 
-<div class="form-row time-row">
+<div class="time-row">
   <div class="half">
-    <label for="StartHour">Start time <span class="req">*</span></label>
+    <label class="time-label">Start time <span class="req">*</span></label>
     <div class="time-group">
-      <select id="StartHour">
-        <option value="">HH</option>
+      <select id="StartHour" class="time-select">
+        <option value="" selected disabled>HH</option>
         <option>01</option><option>02</option><option>03</option><option>04</option>
         <option>05</option><option>06</option><option>07</option><option>08</option>
         <option>09</option><option>10</option><option>11</option><option>12</option>
       </select>
-      <select id="StartMin">
-        <option value="">MM</option>
+      <select id="StartMin" class="time-select">
+        <option value="" selected disabled>MM</option>
         <option>00</option><option>15</option><option>30</option><option>45</option>
       </select>
-      <select id="StartMer">
+      <select id="StartMer" class="time-select mer">
         <option>AM</option>
         <option selected>PM</option>
       </select>
@@ -101,25 +101,26 @@
   </div>
 
   <div class="half">
-    <label for="EndHour">End time <span class="req">*</span></label>
+    <label class="time-label">End time <span class="req">*</span></label>
     <div class="time-group">
-      <select id="EndHour">
-        <option value="">HH</option>
+      <select id="EndHour" class="time-select">
+        <option value="" selected disabled>HH</option>
         <option>01</option><option>02</option><option>03</option><option>04</option>
         <option>05</option><option>06</option><option>07</option><option>08</option>
         <option>09</option><option>10</option><option>11</option><option>12</option>
       </select>
-      <select id="EndMin">
-        <option value="">MM</option>
+      <select id="EndMin" class="time-select">
+        <option value="" selected disabled>MM</option>
         <option>00</option><option>15</option><option>30</option><option>45</option>
       </select>
-      <select id="EndMer">
+      <select id="EndMer" class="time-select mer">
         <option>AM</option>
         <option selected>PM</option>
       </select>
     </div>
   </div>
 </div>
+
 
 
 
