@@ -1,22 +1,13 @@
-// ====== CONFIG ======
+// LOCAL-ONLY (Central) — no timezone math anywhere.
+// We send "YYYY-MM-DDTHH:mm:00" as plain strings.
+
 const ENDPOINT = "https://apim-tourscheduler-sbx.azure-api.net/tours/book";
 
-// ====== UI helpers ======
 function show(msg, cls = "info") {
   const el = document.getElementById("status");
   el.textContent = msg || "";
   el.className = "status " + cls;
   el.style.display = msg ? "block" : "none";
-}
-
-function combineDateTime(dateVal, hhmm) {
-  if (!dateVal || !hhmm) return "";
-  const local = `${dateVal}T${hhmm}`;
-  const d = new Date(local);
-  if (isNaN(d.getTime())) return "";
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-    .toISOString()
-    .replace(/\.\d{3}Z$/, "Z");
 }
 
 function to24(hh, mm, mer) {
@@ -26,46 +17,34 @@ function to24(hh, mm, mer) {
   return `${String(h).padStart(2, "0")}:${mm}`;
 }
 
-// ====== phone auto-format ======
-(function wirePhoneMask() {
+// Build local string (NO Z)
+function combineLocalString(dateVal, hhmm) {
+  if (!dateVal || !hhmm) return "";
+  return `${dateVal}T${hhmm}:00`; // e.g., 2025-11-30T14:00:00
+}
+
+// phone mask
+(function () {
   const phone = document.getElementById("Phone");
   if (!phone) return;
-
-  function format(val) {
-    const d = val.replace(/\D/g, "").slice(0, 10);
-    const a = d.slice(0, 3), b = d.slice(3, 6), c = d.slice(6, 10);
+  function fmt(v) {
+    const d = v.replace(/\D/g, "").slice(0, 10);
+    const a = d.slice(0, 3), b = d.slice(3, 6), c = d.slice(6);
     if (d.length > 6) return `(${a}) ${b}-${c}`;
     if (d.length > 3) return `(${a}) ${b}`;
     if (d.length > 0) return `(${a}`;
     return "";
   }
-
-  phone.addEventListener("input", (e) => {
-    const before = e.target.value;
-    e.target.value = format(before);
-    e.target.selectionStart = e.target.selectionEnd = e.target.value.length;
-  });
-
-  phone.addEventListener("blur", (e) => {
-    e.target.value = format(e.target.value);
-  });
+  phone.addEventListener("input", e => { e.target.value = fmt(e.target.value); e.target.selectionStart = e.target.selectionEnd = e.target.value.length; });
+  phone.addEventListener("blur",  e => { e.target.value = fmt(e.target.value); });
 })();
 
-// ====== form wiring ======
 const form = document.getElementById("tourForm");
 const submitBtn = document.getElementById("submitBtn");
 const resetBtn = document.getElementById("resetBtn");
 
-if (resetBtn) {
-  resetBtn.addEventListener("click", () => {
-    form.reset();
-    show("", "info");
-  });
-}
-
-if (submitBtn) {
-  submitBtn.addEventListener("click", handleSubmit);
-}
+resetBtn?.addEventListener("click", () => { form.reset(); show("", "info"); });
+submitBtn?.addEventListener("click", handleSubmit);
 
 async function handleSubmit() {
   const Company        = document.getElementById("Company").value.trim();
@@ -85,20 +64,20 @@ async function handleSubmit() {
 
   const startHHMM = to24(StartHour, StartMin, StartMer);
   const endHHMM   = to24(EndHour, EndMin, EndMer);
-  const start = combineDateTime(TourDate, startHHMM);
-  const end   = combineDateTime(TourDate, endHHMM);
 
-  if (!Company || !RequesterName || !RequesterEmail || !TourDate || !start || !end) {
-    show("Please fill all required fields.", "err");
-    return;
-  }
-  if (new Date(end) <= new Date(start)) {
-    show("End time must be after start time.", "err");
-    return;
+  const startLocal = combineLocalString(TourDate, startHHMM);
+  const endLocal   = combineLocalString(TourDate, endHHMM);
+
+  if (!Company || !RequesterName || !RequesterEmail || !TourDate || !startLocal || !endLocal) {
+    show("Please fill all required fields.", "err"); return;
   }
 
-  submitBtn.disabled = true;
-  show("Submitting…", "info");
+  // Simple sanity (string -> Date parser uses device tz; we only compare ordering)
+  if (new Date(endLocal) <= new Date(startLocal)) {
+    show("End time must be after start time.", "err"); return;
+  }
+
+  submitBtn.disabled = true; show("Submitting…", "info");
 
   try {
     const res = await fetch(ENDPOINT, {
@@ -108,13 +87,11 @@ async function handleSubmit() {
         company: Company,
         requesterName: RequesterName,
         requesterEmail: RequesterEmail,
-        requester_email: RequesterEmail,
-        email: RequesterEmail,
         phone: Phone,
         partySize: Number(PartySize) || null,
-        start, end,
-        startUtc: start, endUtc: end,
-        preferredStart: start, preferredEnd: end,
+        // LOCAL (Central) strings — no Z, no offset
+        startLocal,
+        endLocal,
         reason: Reason
       })
     });
@@ -122,12 +99,9 @@ async function handleSubmit() {
     const text = await res.text();
     let data; try { data = JSON.parse(text); } catch { data = { message: text }; }
 
-    if (!res.ok) {
-      show(`Oops: ${data.error || data.message || res.statusText || "Request failed"}`, "err");
-      return;
-    }
+    if (!res.ok) { show(`Oops: ${data.error || data.message || res.statusText || "Request failed"}`, "err"); return; }
 
-    show(data.message || "Request received. We’ll email you once it’s scheduled.", "ok");
+    show(data.message || "Request received.", "ok");
     form.reset();
   } catch (err) {
     show(`Network error: ${err.message}`, "err");
