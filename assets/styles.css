@@ -1,29 +1,118 @@
-.time-group { display:flex; gap:8px; align-items:center; }
-.time-select {
+/* ========= Kofile Vendor Tour — styles.css (full) ========= */
+
+:root{
+  --bg:#0d1117;            /* page bg */
+  --panel:#161b22;         /* card bg */
+  --border:#30363d;        /* borders */
+  --text:#c9d1d9;          /* primary text */
+  --muted:#8b949e;         /* secondary text */
+  --accent:#3b82f6;        /* focus + buttons */
+  --ok:#22c55e;
+  --err:#ef4444;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial;
+}
+a{color:var(--accent);text-decoration:none}
+
+/* Layout */
+.wrap{max-width:880px;margin:48px auto;padding:0 20px}
+header{margin-bottom:22px;text-align:center}
+h1{margin:10px 0 6px;font-size:28px}
+.sub{color:var(--muted)}
+.logo{height:42px;opacity:.9}
+
+/* Card */
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.02)
+}
+
+/* Form */
+form{display:block}
+.form-row{margin-bottom:18px}
+label{display:block;font-weight:600;margin:2px 0 8px}
+input,textarea,select{
+  width:100%;
+  background:#0b1220;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 14px;
+  outline:none;
+  transition:border-color .15s, box-shadow .15s;
+  font:inherit;
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(59,130,246,.25)
+}
+textarea{min-height:110px;resize:vertical}
+
+.req{color:var(--accent);margin-left:4px}
+
+/* Actions */
+.actions{
+  display:flex;gap:12px;align-items:center;justify-content:flex-end;margin-top:6px
+}
+button{
+  background:linear-gradient(90deg,#2563eb,#3b82f6);
+  color:#fff;border:none;padding:12px 18px;border-radius:10px;
+  cursor:pointer;font-weight:700;letter-spacing:.2px;
+  transition:transform .06s, filter .2s
+}
+button:hover{filter:brightness(1.05)}
+button:active{transform:translateY(1px)}
+button.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+button.loading{filter:grayscale(.2) brightness(.9);cursor:wait}
+
+/* Status / alerts */
+.status{
+  display:none;margin-top:10px;border-radius:10px;padding:12px 14px;
+  background:#0b1220;border:1px solid var(--border);color:var(--muted)
+}
+.status.ok{display:block;border-color:rgba(34,197,94,.35);color:#a7f3d0;background:rgba(34,197,94,.08)}
+.status.err{display:block;border-color:rgba(239,68,68,.35);color:#fecaca;background:rgba(239,68,68,.08)}
+.status.info{display:block;border-color:rgba(59,130,246,.35);color:#bfdbfe;background:rgba(59,130,246,.08)}
+
+/* ===== Time pickers (HH / MM / AM|PM) ===== */
+.time-row{
+  display:flex;
+  gap:16px;
+  align-items:flex-end;      /* aligns selects baseline with inputs */
+  margin-bottom:14px;
+}
+.time-row .half{flex:1}
+.time-label{display:block;margin-bottom:8px;font-weight:600}
+
+.time-group{display:flex;gap:8px;align-items:center}
+
+.time-select{
   appearance:none; -webkit-appearance:none; -moz-appearance:none;
   background:#0b1220; color:var(--text);
-  border:1px solid var(--border); border-radius:10px;
-  padding:12px 14px; height:44px; line-height:20px; /* match inputs */
-  box-sizing:border-box; min-width:82px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 14px;
+  height:44px; line-height:20px;
+  min-width:88px;            /* comfortable width for HH/MM */
+  font:inherit;
 }
-.time-select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(59,130,246,.25); }
-.time-select.mer { min-width:74px; }
-.time-row {
-  display: flex;
-  gap: 16px;
-  margin-top: 8px;
-}
+.time-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+.time-select.mer{min-width:84px}
 
-.time-row .half {
-  flex: 1;
-}
+/* Footer */
+footer{margin-top:22px;color:var(--muted);text-align:center;font-size:13px}
 
-.form-row {
-  margin-bottom: 20px;
-}
-
-.time-group {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+/* Small screens */
+@media (max-width:720px){
+  .time-row{flex-direction:column;align-items:stretch}
 }
